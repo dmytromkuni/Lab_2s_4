@@ -4,6 +4,59 @@
 #include <string>
 #include <stack>
 
+express::EpxTree::NodeVar::NodeVar(char key, int val)
+{
+	this->key = key;
+	this->val = val;
+}
+
+void express::EpxTree::addVar(char key, int val)
+{
+	if (this->headVar == nullptr)
+	{
+		NodeVar* to_add = new NodeVar(key, val);
+		if (this->headVar == nullptr)
+		{
+			this->headVar = to_add;
+			this->tailVal = to_add;
+		}
+		else
+		{
+			this->tailVal->next = to_add;
+			this->tailVal = to_add;
+			this->tailVal->next = nullptr;
+		}
+	}
+}
+
+bool express::EpxTree::does_exist_var(char key)
+{
+	NodeVar* iter = headVar;
+
+	while (iter != nullptr)
+	{
+		if (iter->key == key)
+			return true;
+		else
+			iter = iter->next;
+	}
+
+	return false;
+}
+
+int express::EpxTree::valVar(char key)
+{
+	NodeVar* iter = headVar;
+
+	while (iter != nullptr)
+	{
+		if (iter->key == key)
+			return iter->val;
+		else
+			iter = iter->next;
+	}
+}
+
 express::EpxTree::Node::Node(char val)
 {
 	this->val = val;
@@ -91,8 +144,8 @@ void express::infix_to_postfix(char* input, char* result)
 			stack.pop();
 		}
 
-		else if (cur == '-' && isdigit(input[i + 1])
-			&& (i == 0 || !express::is_num_var(cur)))			
+		else if (cur == '-' 
+			&& (express::is_num_var(input[i+1]) || i == 0))
 			stack.push('#');
 
 		else 
@@ -161,7 +214,48 @@ void express::EpxTree::build(char* input)
 			stack.push(z);
 		}
 	}
-
-	//std::cout << " The Inorder Traversal of Expression Tree: ";
 	//this->print(head);
+}
+
+int express::EpxTree::evaluate(Node* iter)
+{
+	if (isdigit(iter->val))
+	{
+		int result = iter->val - '0';
+		return result;
+	}
+
+	else if ((iter->val >= 'a' && iter->val <= 'z')
+		|| (iter->val >= 'A' && iter->val <= 'Z'))
+	{
+		if (!does_exist_var(iter->val))
+		{
+			std::cout << "\nEnter the val for " << iter->val << ": ";
+			int result;
+			std::cin >> result;
+			return result;
+		}
+		else
+		{
+			return valVar(iter->val);
+		}
+	}
+
+	else if (iter->val == '#')
+		return (-1) * evaluate(iter->l_child);
+
+	else if (iter->val == '-')
+		return (evaluate(iter->l_child) - evaluate(iter->r_child));
+
+	else if (iter->val == '+')
+		return (evaluate(iter->l_child) + evaluate(iter->r_child));
+
+	else if (iter->val == '*')
+		return (evaluate(iter->l_child) * evaluate(iter->r_child));
+
+	else if (iter->val == '/')
+		return (evaluate(iter->l_child) / evaluate(iter->r_child));
+
+	else if (iter->val == '%')
+		return (evaluate(iter->l_child) % evaluate(iter->r_child));
 }

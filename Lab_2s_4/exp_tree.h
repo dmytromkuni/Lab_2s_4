@@ -7,7 +7,20 @@ namespace express
 
 	struct EpxTree
 	{
-		int tree_depth = 0;
+		struct NodeVar
+		{
+			char key;
+			int val;
+			NodeVar* next = nullptr;
+			NodeVar(char key, int val);
+		};
+
+		NodeVar* headVar = nullptr;
+		NodeVar* tailVal = nullptr;
+
+		void addVar(char key, int val);
+		bool does_exist_var(char key);
+		int valVar(char key);
 
 		struct Node
 		{
@@ -17,12 +30,14 @@ namespace express
 			Node(char val);
 		};
 
-		Node* head;
+		Node* head = nullptr;
 
 		void build(char* input);
 
 		void print(Node* iter);
 		void printGraph(const std::string& prefix, const express::EpxTree::Node* node, bool isLeft);
+
+		int evaluate(Node* iter);
 	};
 
 	int precedence(char input);
